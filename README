@@ -1,6 +1,17 @@
 SemanticFormBuilder
 ===================
 
+Installation
+============
+
+To install, simply add a clone of the git repository to the vendor/plugins directory
+
+  $ cd /path/to/rails/app
+  $ git clone git@github.com:xgamerx/semantic_form_builder.git vendor/plugins/semantic_form_builder
+
+Overview
+========
+
 This class is a standardized form builder which works to create semantically correct forms, 
   each field with the appropriate label and wrapped within a definition list item in order to 
   represent a list of items using proper xhtml markup.
