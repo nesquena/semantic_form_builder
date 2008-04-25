@@ -1,0 +1,68 @@
+SemanticFormBuilder
+===================
+
+Installation
+============
+
+To install, simply add a clone of the git repository to the vendor/plugins directory
+
+  $ cd /path/to/rails/app
+  $ git clone git@github.com:xgamerx/semantic_form_builder.git vendor/plugins/semantic_form_builder
+
+Overview
+========
+
+This class is a standardized form builder which works to create semantically correct forms, 
+  each field with the appropriate label and wrapped within a definition list item in order to 
+  represent a list of items using proper xhtml markup.
+
+  The tags allowed are as follows:
+
+  * fieldset(name:string, &block) - wraps the rest of the form items in a definition list
+  * text_field_item      (attribute:symbol, options_hash:hash)
+  * password_field_item  (attribute:symbol, options_hash:hash)
+  * file_field_item      (attribute:symbol, options_hash:hash)
+  * text_area_item       (attribute:symbol, options_hash:hash)
+  * check_box_item       (attribute:symbol, options_hash:hash)
+  * radio_button_group   (attribute:symbol, options_hash:hash)
+  * submit_button        (label:string)  - create a submit button in a definition item
+
+Example
+=======
+
+This form builder is rather easy to use as the example illustrates:
+
+  - standard_form_for :user, :url => users_path do |f|
+    - f.fieldset 'Register' do
+      = f.text_field_item      :login,                 :label => 'Login'
+      = f.text_field_item      :email,                 :label => 'Email'
+      = f.password_field_item  :password,              :label => 'Password'
+      = f.password_field_item  :password_confirmation, :label => 'Password Confirmation'
+      = f.submit_button 'Sign up'  
+
+  which generates the following semantically valid markup:
+  
+  <form method="post" action="/users">
+    <fieldset>
+      <legend>Register</legend>
+      <dl class = "standard-form">
+        <dt><label for="user_login">Login:</label></dt>
+        <dd><input type="text" size="30" name="user[login]" id="user_login"/></dd>
+  
+        <dt><label for="user_email">Email:</label></dt>
+        <dd><input type="text" size="30" name="user[email]" id="user_email"/></dd>
+  
+        <dt><label for="user_password">Password:</label></dt>
+        <dd><input type="password" size="30" name="user[password]" id="user_password"/></dd>
+  
+        <dt><label for="user_password_confirmation">Password Confirmation:</label></dt>
+        <dd><input type="password" size="30" name="user[password_confirmation]" id="user_password_confirmation"/></dd>
+  
+        <dt class="button"/>
+        <dd class="button"><input type="submit" value="Sign up" name="commit"/></dd>
+      </dl>
+    </fieldset> 
+  </form>
+
+
+Copyright (c) 2008 Nathan Esquenazi, released under the MIT license

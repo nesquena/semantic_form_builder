@@ -9,35 +9,34 @@
   and valid markup to the user for all forms.
 
   Using the field helpers below is easy and note that these same helpers can be accessed
-  within model-backed forms by using the 'semantic_form_builder.rb' form builder.
+  within model-backed forms by using the 'standard_builder.rb' form builder.
 
   To use standard forms without a model:
 
-    - form_tag some_url do
-      - semantic_fieldset_tag "Name" do
-        = semantic_text_field_tag     :username, :label => "Username"
-        = semantic_password_field_tag :password, :label => "Password"
-        = semantic_check_box_tag      :is_admin, :label => "Administrator?"
-        = semantic_select_tag         :category, @option_values
-        = semantic_submit_tag "Submit"
+    - standard_remote_form_for @user, :url => example_url do
+      - standard_fieldset_tag "Name" do
+        = text_field_standard_tag     :username, :label => "Username"
+        = password_field_standard_tag :password, :label => "Password"
+        = check_box_standard_tag :is_admin, :label => "Administrator?"
+        = select_standard_tag :group, @option_values
 
   To use standard forms with a model:
 
-    - semantic_form_for :user, :url => register_url do |u|
+    - standard_form_for :user, :url => register_url do |u|
       - u.fieldset do
-        = u.text_field     "login"
-        = u.password_field "password"
-        = u.text_field     "email"
-        = u.text_field     "mobile_number", :label => "Mobile No"
-        = u.password_field "invite_code", :label => 'Invite'
+        = u.text_field_item "login"
+        = u.password_field_item "password"
+        = u.text_field_item "email"
+        = u.text_field_item "mobile_number", :label => "Mobile No"
+        = u.password_field_item "invite_code", :label => 'Invite'
         = u.submit_button
 
   To have standard fields within a fields_for a model:
 
-    - semantic_fields_for :user do |u|
+    - standard_fields_for :user do |u|
       - u.fieldset do 
-        = u.text_field     "login"
-        = u.password_field "password"
+        = u.text_field_item "login"
+        = u.password_field_item "password"
 
 =end
 
@@ -51,26 +50,26 @@ module SemanticFormBuilder
     #
     # Check in "private helpers" lower in this file to see the definitions for:
     #
-    #    - semantic_text_field_tag
-    #    - semantic_password_fieldtag 
-    #    - semantic_check_box_tag
-    #    - semantic_text_area_tag
-    #    - semantic_file_field_tag
+    #    - text_field_standard_tag
+    #    - password_field_standard_tag 
+    #    - check_box_standard_tag
+    #    - text_area_standard_tag
+    #    - file_field_standard_tag
     #
     # These were created dynamically in the method "self.create_field_element"
     #
     
     # creates a select tag that is generated within a definition item
-    # for use within a definition form that has definition items for each field
+    # for use within a standard form that has definition items for each field
     #
     #  option_values = options_for_select( [ 'foo', 'bar', 'other' ] )
     #
     #   <dt><label for="someid">Group</label></dt>
     #   <dd><select id="someid">...</select></dd> 
     #
-    # ex: semantic_select_tag(:attribute, @option_values, :label => "example")
+    # ex. select_standard_tag(:attribute, @option_values, :label => "example")
     #
-    def semantic_select_tag(name, option_values, options={})
+    def select_standard_tag(name, option_values, options={})
       label = options.delete(:label).gsub(' ', '&nbsp;')
       content_tag("dt", content_tag("label" , "#{label}:", :for => name )) +  "\n" +
       content_tag("dd", select_tag(name, option_values, options))
@@ -81,9 +80,7 @@ module SemanticFormBuilder
     #   <dt class="button"><label for="someid">Name</label></dt>
     #   <dd class="button"><input id="someid" type = 'submit' /></dd>
     #
-    # ex: semantic_submit_tag "Caption"
-    #
-    def semantic_submit_tag(label, options={})
+    def submit_standard_tag(label, options={})
       html = tag(:dt, :class => 'button') 
       html << content_tag(:dd, :class => 'button') do
         submit_tag(label, options)
@@ -96,26 +93,26 @@ module SemanticFormBuilder
     
     # creates a regular form based on a model's data using the standard builder
     #
-    # ex: semantic_form_for(:user, :url => users_path) do # ... end
+    # ex. standard_form_for(:user, :url => users_path) do # ... end
     #
-    def semantic_form_for(name, *args, &block)
-      use_semantic_builder(:form_for, name, *args, &block)
+    def standard_form_for(name, *args, &block)
+      use_standard_builder(:form_for, name, *args, &block)
     end
     
     # creates a remote form based on a model's data using the standard builder
     #
-    # ex: semantic_remote_form_for(:user, :url => users_path) do # ... end
+    # ex. standard_remote_form_for(:user, :url => users_path) do # ... end
     #
-    def semantic_remote_form_for(name, *args, &block)
-      use_semantic_builder(:remote_form_for, name, *args, &block)
+    def standard_remote_form_for(name, *args, &block)
+      use_standard_builder(:remote_form_for, name, *args, &block)
     end
     
     # creates a fields for based on a model's data using the standard builder
     #
-    # ex: semantic_fields_for(:user, :url => users_path) do # ... end
+    # ex. standard_fields_for(:user, :url => users_path) do # ... end
     #
-    def semantic_fields_for(name, *args, &block)
-      use_semantic_builder(:fields_for, name, *args, &block)
+    def standard_fields_for(name, *args, &block)
+      use_standard_builder(:fields_for, name, *args, &block)
     end
     
     # creates a ajaxy form based on a model's data using the standard builder
@@ -125,20 +122,22 @@ module SemanticFormBuilder
     # to make it work, the ajaxy form must have a special submit that is
     # created by using the 'submit_with_ajax' helper
     #
-    # ex:
+    # i.e
     #
-    # - semantic_ajaxy_form_for :user, :url => create_user_url do |s|
+    # - standard_ajaxy_form_for :user, :url => create_user_url do |s|
     #   - s.fieldset do
     #     = f.text_field_item :login
     #     = submit_with_ajax_tag "Create"
     #
-    def semantic_ajaxy_form_for(name, *args, &block)
+    # ex. standard_ajaxy_form_for(:user, :url => users_path) do # ... end
+    #
+    def standard_ajaxy_form_for(name, *args, &block)
       options = args.last.is_a?(Hash) ? args.pop : {}
       element_id = options[:html][:id] if options[:html]
       raise "Ajax form needs an identifying html id to be specified!" unless element_id
       options = options.reverse_merge!(:before => "ajaxyFormBefore('#{element_id}')", :complete => "ajaxyFormComplete('#{element_id}')")
       args = (args << options)
-      use_semantic_builder(:remote_form_for, name, *args, &block)
+      use_standard_builder(:remote_form_for, name, *args, &block)
     end
     
     # Creates a fieldset around the content block
@@ -152,11 +151,11 @@ module SemanticFormBuilder
     #
     # ex. 
     #
-    #   semantic_fieldset_tag "Label" do
+    #   standard_fieldset_tag "Label" do
     #     ...input_fields...
     #   end
     #
-    def semantic_fieldset_tag(name=nil, &block)
+    def standard_fieldset_tag(name=nil, &block)
       content_block = capture(&block) # get the content
       field_set_tag(name) do
         content_tag(:dl, :class => "standard-form") do
@@ -195,30 +194,30 @@ module SemanticFormBuilder
     #
     # ex.
     #
-    # def semantic_form_for(name, *args, &block)
-    #   use_semantic_builder(:form_for, name, *args, &block)
+    # def standard_form_for(name, *args, &block)
+    #   use_standard_builder(:form_for, name, *args, &block)
     # end
     #
-    def use_semantic_builder(method_name, name, *args, &block)
+    def use_standard_builder(method_name, name, *args, &block)
       options = args.last.is_a?(Hash) ? args.pop : {}
       options = options.merge(:builder => SemanticFormBuilder::StandardBuilder)
       args = (args << options)
       method(method_name).call(name, *args, &block)
     end
     
-    # places a xxxx_tag within the semantic defintion list formatting
+    # places a xxxx_tag within the standardized format
     #
     #   <dt><label for="someid">Login</label></dt>
     #   <dd><input id="someid" ... /></dd>
     #
-    # ex. semantic_text_field_tag :login, :label => "Login"
+    # ex. text_field_item_tag :login, :label => "Login"
     # 
     # options hash can have { :id => "field id", :label => "field label", :value => "field value" ]
     #
     def self.create_field_element(input_type)
-      method_name = "semantic_#{input_type}_tag" #i.e semantic_text_field_tag
-      tag_name = "#{input_type}_tag" # i.e text_field_tag
-      define_method(method_name) do |name, *args| # defines a method called 'semantic_text_field_tag' 
+      method_name = input_type + "_standard_tag" #i.e text_field_item_tag
+      tag_name = input_type + "_tag" # i.e text_field_tag
+      define_method(method_name) do |name, *args| # defines a method called 'text_field_item' 
         field_helper_method = method(tag_name.intern)
         options = field_tag_item_options(name, args[0]) # grab the options hash
         
@@ -234,8 +233,8 @@ module SemanticFormBuilder
     end
     
     # for text, password, and check_boxes invoke the 'create_field_element' method to create
-    # 'semantic_text_field_tag', 'semantic_password_field_tag', 'semantic_check_box_tag'
-    # 'semantic_text_area_tag', 'semantic_file_field_tag'
+    # 'text_field_standard_tag', 'password_field_standard_tag', 'check_box_standard_tag'
+    # 'text_area_standard_tag', 'file_field_standard_tag'
     #
     [ 'text_field', 'password_field', 'check_box', 'file_field', 'text_area' ].each { |field| self.create_field_element(field) }
   end

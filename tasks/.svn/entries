@@ -1,0 +1,41 @@
+8
+
+dir
+860
+svn+ssh://nate@74.205.71.69/home/svnowner/repository/openPresenceRubyOnRails/trunk/vendor/plugins/semantic_form_builder/tasks
+svn+ssh://nate@74.205.71.69/home/svnowner/repository
+
+
+
+2008-04-14T04:36:21.422973Z
+795
+nate
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+75e973b7-daca-42f5-98ca-6c0bed327aa9
+
+semantic_form_builder_tasks.rake
+file
+
+
+
+
+2008-04-14T04:27:50.000000Z
+eb8172ac5f75064260dc440f8b1a2ea9
+2008-04-14T04:36:21.422973Z
+795
+nate
+has-props
+
