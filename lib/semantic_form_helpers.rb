@@ -14,12 +14,12 @@
   To use standard forms without a model:
 
     - form_tag some_url do
-      - semantic_fieldset_tag "Name" do
-        = semantic_text_field_tag     :username, :label => "Username"
-        = semantic_password_field_tag :password, :label => "Password"
-        = semantic_check_box_tag      :is_admin, :label => "Administrator?"
-        = semantic_select_tag         :category, @option_values
-        = semantic_submit_tag "Submit"
+      - semantic_fieldset_tag "Name" do |f|
+        = f.text_field_tag     :username, :label => "Username"
+        = f.password_field_tag :password, :label => "Password"
+        = f.check_box_tag      :is_admin, :label => "Administrator?"
+        = f.select_tag         :category, @option_values
+        = f.submit_tag "Submit"
 
   To use standard forms with a model:
 
@@ -44,51 +44,6 @@
 module SemanticFormBuilder
   module Helpers
     
-    # ===============================================================
-    # FORM FIELD HELPERS
-    # ===============================================================
-    
-    #
-    # Check in "private helpers" lower in this file to see the definitions for:
-    #
-    #    - semantic_text_field_tag
-    #    - semantic_password_fieldtag 
-    #    - semantic_check_box_tag
-    #    - semantic_text_area_tag
-    #    - semantic_file_field_tag
-    #
-    # These were created dynamically in the method "self.create_field_element"
-    #
-    
-    # creates a select tag that is generated within a definition item
-    # for use within a definition form that has definition items for each field
-    #
-    #  option_values = options_for_select( [ 'foo', 'bar', 'other' ] )
-    #
-    #   <dt><label for="someid">Group</label></dt>
-    #   <dd><select id="someid">...</select></dd> 
-    #
-    # ex: semantic_select_tag(:attribute, @option_values, :label => "example")
-    #
-    def semantic_select_tag(name, option_values, options={})
-      label = options.delete(:label).gsub(' ', '&nbsp;')
-      content_tag("dt", content_tag("label" , "#{label}:", :for => name )) +  "\n" +
-      content_tag("dd", select_tag(name, option_values, options))
-    end
-    
-    # places a submit_button in a standardized format with a definition item for a standard form.
-    #
-    #   <dt class="button"><label for="someid">Name</label></dt>
-    #   <dd class="button"><input id="someid" type = 'submit' /></dd>
-    #
-    # ex: semantic_submit_tag "Caption"
-    #
-    def semantic_submit_tag(label, options={})
-      html = tag(:dt, :class => 'button') 
-      html << content_tag(:dd, :class => 'button') do
-        submit_tag(label, options)
-      end
-    end
     
     # ===============================================================
     # FORM BLOCK HELPERS
@@ -128,8 +83,8 @@ module SemanticFormBuilder
     # ex:
     #
     # - semantic_ajaxy_form_for :user, :url => create_user_url do |s|
-    #   - s.fieldset do
-    #     = f.text_field_item :login
+    #   - s.fieldset do |f|
+    #     = f.text_field :login
     #     = submit_with_ajax_tag "Create"
     #
     def semantic_ajaxy_form_for(name, *args, &block)
@@ -145,7 +100,7 @@ module SemanticFormBuilder
     #
     #  <fieldset>
     #     <legend>Some Context</legend>
-    #     <dl class="standard-form">
+    #     <dl class="semantic-form">
     #         ...block... 
     #     <dl>
     #   </fieldset>
@@ -156,38 +111,15 @@ module SemanticFormBuilder
     #     ...input_fields...
     #   end
     #
-    def semantic_fieldset_tag(name=nil, &block)
-      content_block = capture(&block) # get the content
-      field_set_tag(name) do
-        content_tag(:dl, :class => "standard-form") do
-          content_block
-        end
-      end
+    def semantic_fieldset_tag(name=nil, options={}, &block)
+      concat(tag(:fieldset, options, true), block.binding)
+      concat(content_tag(:legend, name), block.binding) if name
+      concat(tag(:dl, { :class => 'semantic-form' }, true), block.binding)
+      yield FieldsRenderer.new(self) # yield the field renderer
+      concat("</dl>", block.binding)
+      concat("</fieldset>", block.binding)
     end  
     
-    # ===============================================================
-    # PRIVATE HELPERS
-    # ===============================================================
-    
-    private
-    
-    # given the element_name for the field and the options_hash will construct a hash
-    # filled with all pertinent information for creating a field_tag with the correct details
-    #
-    # used by 'create_field_element' to retrieve the necessary field options for the field element
-    #
-    # element_name is simply a string or symbol representing the name of the field element such as "user[login]"
-    # options_hash can have [ :id, :label, :value ]
-    #
-    # returns => { :value => 'field_value', :label => "some string", :id => 'some_id', ... }
-    # 
-    def field_tag_item_options(element_name, options)
-      result_options = (options || {}).dup
-      result_options[:id] ||= element_name
-      result_options[:label]  ||= element_name.to_s.titleize
-      result_options[:value]  ||= nil
-      result_options
-    end
     
     # adds a special option to any form helper block tags such as form_for, fields_for, remote_form_for
     # adds the option specifying that the "StandardBuilder" should be used to build the form
@@ -201,42 +133,10 @@ module SemanticFormBuilder
     #
     def use_semantic_builder(method_name, name, *args, &block)
       options = args.last.is_a?(Hash) ? args.pop : {}
-      options = options.merge(:builder => SemanticFormBuilder::StandardBuilder)
+      options = options.merge(:builder => SemanticFormBuilder::SemanticBuilder)
       args = (args << options)
       method(method_name).call(name, *args, &block)
     end
     
-    # places a xxxx_tag within the semantic defintion list formatting
-    #
-    #   <dt><label for="someid">Login</label></dt>
-    #   <dd><input id="someid" ... /></dd>
-    #
-    # ex. semantic_text_field_tag :login, :label => "Login"
-    # 
-    # options hash can have { :id => "field id", :label => "field label", :value => "field value" ]
-    #
-    def self.create_field_element(input_type)
-      method_name = "semantic_#{input_type}_tag" #i.e semantic_text_field_tag
-      tag_name = "#{input_type}_tag" # i.e text_field_tag
-      define_method(method_name) do |name, *args| # defines a method called 'semantic_text_field_tag' 
-        field_helper_method = method(tag_name.intern)
-        options = field_tag_item_options(name, args[0]) # grab the options hash
-        
-        html = content_tag(:dt) do
-          content_tag(:label , "#{options.delete(:label)}:", :for => options[:id])
-        end
-        
-        html << content_tag(:dd) do
-          field_helper_method.call(name, options.delete(:value), options)
-        end
-        
-      end
-    end
-    
-    # for text, password, and check_boxes invoke the 'create_field_element' method to create
-    # 'semantic_text_field_tag', 'semantic_password_field_tag', 'semantic_check_box_tag'
-    # 'semantic_text_area_tag', 'semantic_file_field_tag'
-    #
-    [ 'text_field', 'password_field', 'check_box', 'file_field', 'text_area' ].each { |field| self.create_field_element(field) }
   end
 end

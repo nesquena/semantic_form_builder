@@ -23,14 +23,14 @@
       = f.text_field      :email,                 :label => 'Email'
       = f.password_field  :password,              :label => 'Password'
       = f.password_field  :password_confirmation, :label => 'Password Confirmation'
-      = f.submit_button 'Sign up'  
+      = f.submit_button   'Sign up'  
 
   which generates the following semantically valid markup:
   
   <form method="post" action="/users">
     <fieldset>
       <legend>Register</legend>
-      <dl class = "standard-form">
+      <dl class = "semantic-form">
         <dt><label for="user_login">Login:</label></dt>
         <dd><input type="text" size="30" name="user[login]" id="user_login"/></dd>
   
@@ -52,7 +52,7 @@
 =end
 
 module SemanticFormBuilder
-  class StandardBuilder < ActionView::Helpers::FormBuilder  
+  class SemanticBuilder < ActionView::Helpers::FormBuilder  
     
     # Creates a fieldset around the content block as well as wrapping
     # the fields within a definition item and providing an optional legend
@@ -71,6 +71,7 @@ module SemanticFormBuilder
     #    end
     #
     def fieldset(name=nil, &block)
+      @renderer = FieldsRenderer.new(@template) # stores the renderer for later use
       @template.semantic_fieldset_tag(name, &block)
     end 
     
@@ -85,7 +86,7 @@ module SemanticFormBuilder
     #     f.submit_button "Label"
     #
     def submit_button(label, options={})
-      @template.semantic_submit_tag(label, options)
+      @renderer.submit_tag(label, options)
     end
     
     # options => :choices [Array]
@@ -191,12 +192,13 @@ module SemanticFormBuilder
     #
     def self.create_field_element(input_type_name)
       method_name = input_type_name #i.e method will be defined as 'text_field'
-      template_method = "semantic_#{input_type_name}_tag" #i.e semantic_text_field_tag
+      template_method = "#{input_type_name}_tag" #i.e text_field_tag
       define_method(method_name) do |attribute, *args| # defines a method called 'text_field' 
+        raise "Semantic form fields must be contained within a fieldset!" unless @renderer
         options = args.length > 0 ? args[0] : {} # grab the options hash
         object_value = @object ? @object.send(attribute) : nil # grab the object's value
         options.reverse_merge!(:label => attribute.to_s.titleize, :id => "#{object_name(:id)}_#{attribute}", :value => object_value)
-        @template.send(template_method, "#{object_name}[#{attribute}]", options)
+        @renderer.send(template_method, "#{object_name}[#{attribute}]", options)
       end
     end
     

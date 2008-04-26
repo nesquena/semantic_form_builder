@@ -1,0 +1,113 @@
+module SemanticFormBuilder
+  class FieldsRenderer
+    def initialize(template)
+      @super = template
+    end
+    
+    # ===============================================================
+    # FORM FIELD HELPERS
+    # ===============================================================
+    
+    #
+    # Check in "private helpers" lower in this file to see the definitions for:
+    #
+    #    - text_field_tag
+    #    - password_field_tag 
+    #    - check_box_tag
+    #    - text_area_tag
+    #    - file_field_tag
+    #
+    # These were created dynamically in the method "self.create_field_element"
+    #
+    
+    # creates a select tag that is generated within a definition item
+    # for use within a definition form that has definition items for each field
+    #
+    #  option_values = options_for_select( [ 'foo', 'bar', 'other' ] )
+    #
+    #   <dt><label for="someid">Group</label></dt>
+    #   <dd><select id="someid">...</select></dd> 
+    #
+    # ex: f.select_tag(:attribute, @option_values, :label => "example")
+    #
+    def select_tag(name, option_values, options={})
+      label = options.delete(:label).gsub(' ', '&nbsp;')
+      content_tag("dt", content_tag("label" , "#{label}:", :for => name )) +  "\n" +
+      content_tag("dd", @super.select_tag(name, option_values, options))
+    end
+    
+    # places a submit_button in a standardized format with a definition item for a standard form.
+    #
+    #   <dt class="button"><label for="someid">Name</label></dt>
+    #   <dd class="button"><input id="someid" type = 'submit' /></dd>
+    #
+    # ex: f.submit_tag "Caption"
+    #
+    def submit_tag(label, options={})
+      html = tag(:dt, :class => 'button') 
+      html << content_tag(:dd, :class => 'button') do
+        @super.submit_tag(label, options)
+      end
+    end
+    
+    # ===============================================================
+    # PRIVATE HELPERS
+    # ===============================================================
+    
+    protected
+    
+    # places a xxxx_tag within the semantic defintion list formatting
+    #
+    #   <dt><label for="someid">Login</label></dt>
+    #   <dd><input id="someid" ... /></dd>
+    #
+    # ex. f.text_field_tag :login, :label => "Login"
+    # 
+    # options hash can have { :id => "field id", :label => "field label", :value => "field value" ]
+    #
+    def self.create_field_element(input_type)
+      field_tag_name = "#{input_type}_tag" # i.e text_field_tag
+      
+      define_method(field_tag_name) do |name, *args| # defines a method called 'semantic_text_field_tag' 
+        field_helper_method = method(field_tag_name.intern)
+        options = field_tag_item_options(name, args[0]) # grab the options hash
+        
+        html = content_tag(:dt) do
+          content_tag(:label , "#{options.delete(:label)}:", :for => options[:id])
+        end
+        
+        html << content_tag(:dd) do
+          @super.send(field_tag_name, name, options.delete(:value), options)
+        end
+        
+      end
+    end
+    
+    # for text, password, and check_boxes invoke the 'create_field_element' method to create
+    # appropriate helper methods for this renderer for each listed field type
+    #
+    [ 'text_field', 'password_field', 'check_box', 'file_field', 'text_area' ].each { |field| self.create_field_element(field) }
+    
+    # given the element_name for the field and the options_hash will construct a hash
+    # filled with all pertinent information for creating a field_tag with the correct details
+    #
+    # used by 'create_field_element' to retrieve the necessary field options for the field element
+    #
+    # element_name is simply a string or symbol representing the name of the field element such as "user[login]"
+    # options_hash can have [ :id, :label, :value ]
+    #
+    # returns => { :value => 'field_value', :label => "some string", :id => 'some_id', ... }
+    # 
+    def field_tag_item_options(element_name, options)
+      result_options = (options || {}).dup
+      result_options[:id] ||= element_name
+      result_options[:label]  ||= element_name.to_s.titleize
+      result_options[:value]  ||= nil
+      result_options
+    end
+    
+    def method_missing(*args, &block)
+      @super.send(*args, &block)
+    end
+  end
+end

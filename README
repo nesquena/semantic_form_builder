@@ -53,7 +53,7 @@ This form builder is rather easy to use as the example illustrates:
   <form method="post" action="/users">
     <fieldset>
       <legend>Register</legend>
-      <dl class = "standard-form">
+      <dl class = "semantic-form">
         <dt><label for="user_login">Login:</label></dt>
         <dd><input type="text" size="30" name="user[login]" id="user_login"/></dd>
   
@@ -78,12 +78,12 @@ Other Examples
 Non-Model Backed Form
   
   - form_tag some_url do
-    - semantic_fieldset_tag "Name" do
-      = semantic_text_field_tag     :username, :label => "Username"
-      = semantic_password_field_tag :password, :label => "Password"
-      = semantic_check_box_tag      :is_admin, :label => "Administrator?"
-      = semantic_select_tag         :category, @option_values
-      = semantic_submit_tag "Submit"
+    - semantic_fieldset_tag "Name" do |f|
+      = f.text_field_tag     :username, :label => "Username"
+      = f.password_field_tag :password, :label => "Password"
+      = f.check_box_tag      :is_admin, :label => "Administrator?"
+      = f.select_tag         :category, @option_values
+      = f.submit_tag "Submit"
       
 Remote Model Backed Form
   
