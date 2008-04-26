@@ -15,10 +15,29 @@ module SemanticFormBuilder
     #    - password_field_tag 
     #    - check_box_tag
     #    - text_area_tag
-    #    - file_field_tag
     #
     # These were created dynamically in the method "self.create_field_element"
     #
+    
+    # creates a file field tag which allows users to select a file
+    # this will wrap the file field tag within a definition list 
+    # in order to match the sematic style
+    #
+    # ex:
+    #     f.file_field_tag :image, :label => 'Image'
+    #
+    #  <dt><label for="someid">Name</label></dt>
+    #  <dd><input type = 'file'>...</></dd>
+    #
+    def file_field_tag(name, options = {}) 
+      html = content_tag(:dt) do
+        content_tag(:label , "#{options.delete(:label)}:", :for => options[:id])
+      end
+      
+      html << content_tag(:dd) do
+        @super.file_field_tag(name, options)
+      end
+    end
     
     # creates a select tag that is generated within a definition item
     # for use within a definition form that has definition items for each field
@@ -38,7 +57,7 @@ module SemanticFormBuilder
     
     # places a submit_button in a standardized format with a definition item for a standard form.
     #
-    #   <dt class="button"><label for="someid">Name</label></dt>
+    #   <dt class="button" />
     #   <dd class="button"><input id="someid" type = 'submit' /></dd>
     #
     # ex: f.submit_tag "Caption"
@@ -86,7 +105,7 @@ module SemanticFormBuilder
     # for text, password, and check_boxes invoke the 'create_field_element' method to create
     # appropriate helper methods for this renderer for each listed field type
     #
-    [ 'text_field', 'password_field', 'check_box', 'file_field', 'text_area' ].each { |field| self.create_field_element(field) }
+    [ 'text_field', 'password_field', 'check_box', 'text_area' ].each { |field| self.create_field_element(field) }
     
     # given the element_name for the field and the options_hash will construct a hash
     # filled with all pertinent information for creating a field_tag with the correct details

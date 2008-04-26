@@ -7,30 +7,30 @@
   The tags allowed are as follows:
 
   * fieldset(name:string, &block) - wraps the rest of the form items in a definition list
-  * text_field_item      (attribute:symbol, options_hash:hash)
-  * password_field_item  (attribute:symbol, options_hash:hash)
-  * file_field_item      (attribute:symbol, options_hash:hash)
-  * text_area_item       (attribute:symbol, options_hash:hash)
-  * check_box_item       (attribute:symbol, options_hash:hash)
-  * radio_button_group   (attribute:symbol, options_hash:hash)
-  * submit_button        (label:string)  - create a submit button in a definition item
+  * text_field      (attribute:symbol, options_hash:hash)
+  * password_field  (attribute:symbol, options_hash:hash)
+  * file_field      (attribute:symbol, options_hash:hash)
+  * text_area       (attribute:symbol, options_hash:hash)
+  * check_box       (attribute:symbol, options_hash:hash)
+  * radio_buttons   (attribute:symbol, options_hash:hash)
+  * submit_button   (label:string)  - create a submit button in a definition item
 
   This form builder is rather easy to use as the example illustrates:
 
-  - standard_form_for :user, :url => users_path do |f|
+  - semantic_form_for :user, :url => users_path do |f|
     - f.fieldset 'Register' do
-      = f.text_field_item      :login,                 :label => 'Login'
-      = f.text_field_item      :email,                 :label => 'Email'
-      = f.password_field_item  :password,              :label => 'Password'
-      = f.password_field_item  :password_confirmation, :label => 'Password Confirmation'
-      = f.submit_button 'Sign up'  
+      = f.text_field      :login,                 :label => 'Login'
+      = f.text_field      :email,                 :label => 'Email'
+      = f.password_field  :password,              :label => 'Password'
+      = f.password_field  :password_confirmation, :label => 'Password Confirmation'
+      = f.submit_button   'Sign up'  
 
   which generates the following semantically valid markup:
   
   <form method="post" action="/users">
     <fieldset>
       <legend>Register</legend>
-      <dl class = "standard-form">
+      <dl class = "semantic-form">
         <dt><label for="user_login">Login:</label></dt>
         <dd><input type="text" size="30" name="user[login]" id="user_login"/></dd>
   
@@ -52,7 +52,7 @@
 =end
 
 module SemanticFormBuilder
-  class StandardBuilder < ActionView::Helpers::FormBuilder  
+  class SemanticBuilder < ActionView::Helpers::FormBuilder  
     
     # Creates a fieldset around the content block as well as wrapping
     # the fields within a definition item and providing an optional legend
@@ -71,7 +71,8 @@ module SemanticFormBuilder
     #    end
     #
     def fieldset(name=nil, &block)
-      @template.standard_fieldset_tag(name, &block)
+      @renderer = FieldsRenderer.new(@template) # stores the renderer for later use
+      @template.semantic_fieldset_tag(name, &block)
     end 
     
     # submit element tag for form within a definition item
@@ -85,7 +86,7 @@ module SemanticFormBuilder
     #     f.submit_button "Label"
     #
     def submit_button(label, options={})
-      @template.submit_standard_tag(label, options)
+      @renderer.submit_tag(label, options)
     end
     
     # options => :choices [Array]
@@ -100,9 +101,9 @@ module SemanticFormBuilder
     # </dd>
     #
     # ex: 
-    #     f.radio_button_group :gender, :choices => [ :male, :female ]
+    #     f.radio_buttons :gender, :choices => [ :male, :female ]
     #
-    def radio_button_group(attribute, options)
+    def radio_buttons(attribute, options)
       caption =  (options.delete(:label) || attribute.to_s.titleize).gsub(' ', '&nbsp;') + ":"
       html = @template.content_tag(:dt, caption)
       html << @template.content_tag(:dd) do
@@ -120,21 +121,28 @@ module SemanticFormBuilder
     # as well as add an automatic label when this is added to the view
     #
     # attribute => the field of the record that will be binded to this
-    # options => any of the calendar_date_select options which can be found here:
+    # options => { :label => "some text" } && any of the calendar_date_select options which can be found here:
     #
     #    http://code.google.com/p/calendardateselect/
     #    http://code.google.com/p/calendardateselect/wiki/CalendarDateSelectParameters 
     #
-    def calendar_date_item(attribute, options={})
+    # ex: 
+    #     f.date_select :start_time, :label => "Start", :time => true 
+    #
+    def date_select(attribute, options={})
       caption = (options.delete(:label) || attribute.to_s.humanize).gsub(' ', '&nbsp;')
       options.reverse_merge!(:valid_date_check => "date >= (new Date()).stripTime()")
       html = @template.content_tag("dt", @template.content_tag("label" , "#{caption}:", :for => "#{object_name}_#{attribute}" )) 
       html << @template.content_tag("dd", calendar_date_select(attribute, options))
     end
     
-    # options => :day (String), :month (String), :year (String), :start_year (Integer), :include_blank (Boolean)
     # constructs a date selector specifically for birthdays. The day, month, year fields are the attributes 
     # for the user mapping to those individual values
+    #
+    # options => :day (String), :month (String), :year (String), :start_year (Integer), :include_blank (Boolean)
+    #
+    # ex: 
+    #     f.simple_date_select "Birthday", :month => 'birth_month', :day => 'birth_day', :year => 'birth_year'
     #
     # <dt>Birthday:</dd>
     # <dd>
@@ -157,9 +165,7 @@ module SemanticFormBuilder
     #   </dd>
     #
     #
-    # ex: f.date_selector_item "Birthday", :month => 'birth_month', :day => 'birth_day', :year => 'birth_year', :include_blank => true
-    #
-    def date_selector_item(caption, options)
+    def simple_date_select(caption, options)
       month_value, day_value, year_value = object.send(options[:month]), object.send(options[:day]), object.send(options[:year])
       end_year = Time.now.year - 10
       html =  @template.content_tag("dt", "#{caption}:")
@@ -182,16 +188,17 @@ module SemanticFormBuilder
     #   <dt><label for="someid">Name</label></dt>
     #   <dd><input id="someid" ... /></dd>
     #
-    # ex: f.text_field_element :login, :label => "Login"
+    # ex: self.create_field_element 'text_field' # => overwrites text_field to use definition pair
     #
     def self.create_field_element(input_type_name)
-      method_name = input_type_name + "_item" #i.e text_field_item
-      template_method = input_type_name + "_standard_tag" #i.e text_field_standard_tag
-      define_method(method_name) do |attribute, *args| # defines a method called 'text_field_item' 
+      method_name = input_type_name #i.e method will be defined as 'text_field'
+      template_method = "#{input_type_name}_tag" #i.e text_field_tag
+      define_method(method_name) do |attribute, *args| # defines a method called 'text_field' 
+        raise "Semantic form fields must be contained within a fieldset!" unless @renderer
         options = args.length > 0 ? args[0] : {} # grab the options hash
         object_value = @object ? @object.send(attribute) : nil # grab the object's value
         options.reverse_merge!(:label => attribute.to_s.titleize, :id => "#{object_name(:id)}_#{attribute}", :value => object_value)
-        @template.send(template_method, "#{object_name}[#{attribute}]", options)
+        @renderer.send(template_method, "#{object_name}[#{attribute}]", options)
       end
     end
     
@@ -203,9 +210,10 @@ module SemanticFormBuilder
     end
     
     # Correctly parses the empty array brackets that can be passed into a form and inserts the id
-    # ex. 
-    # standard_fields_for "social_site[]", social_site_fields do |s|
-    #    s.text_field_item "login"
+    #
+    # ex: 
+    #     semantic_fields_for "social_site[]", social_site_fields do |s|
+    #        s.semantic_text_field_tag "login"
     #
     # "social_site[]" means that the object name should be "social_site[#{@object.id}]"
     #

@@ -29,6 +29,18 @@ svn:special svn:externals svn:needs-lock
 .git
 dir
 
+.gitignore
+file
+872
+
+
+
+2008-04-25T22:41:24.000000Z
+bc1b7e087216f297bb479d0a365b780b
+2008-04-26T03:53:01.746806Z
+872
+nate
+
 MIT-LICENSE
 file
 
@@ -43,14 +55,14 @@ nate
 
 README
 file
+872
 
 
 
-
-2008-04-14T04:28:57.000000Z
-c7b90e76696dbea2cacf887aac4c1ddf
-2008-04-14T04:36:21.422973Z
-795
+2008-04-26T02:34:04.000000Z
+c57c0cceedf965b54b4fb236e206f599
+2008-04-26T03:53:01.746806Z
+872
 nate
 
 Rakefile
@@ -67,14 +79,14 @@ nate
 
 init.rb
 file
+872
 
 
 
-
-2008-04-14T04:27:50.000000Z
-b1cb018155b176780c6105f4a47ba407
-2008-04-14T04:36:21.422973Z
-795
+2008-04-26T02:17:18.000000Z
+377b66cc8ad900a17123fc40f0e64339
+2008-04-26T03:53:01.746806Z
+872
 nate
 has-props
 
