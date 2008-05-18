@@ -82,7 +82,7 @@ module SemanticFormBuilder
     #
     # ex. f.text_field_tag :login, :label => "Login"
     # 
-    # options hash can have { :id => "field id", :label => "field label", :value => "field value" ]
+    # options hash can have { :id => "field id", :label => "field label", :value => "field value", :error => true ]
     #
     def self.create_field_element(input_type)
       field_tag_name = "#{input_type}_tag" # i.e text_field_tag
@@ -96,9 +96,9 @@ module SemanticFormBuilder
         end
         
         html << content_tag(:dd) do
-          @super.send(field_tag_name, name, options.delete(:value), options)
+          html_tag = @super.send(field_tag_name, name, options.delete(:value), options) 
+          options.delete(:error) ? ActionView::Base.field_error_proc.call(html_tag, @object) : html_tag
         end
-        
       end
     end
     

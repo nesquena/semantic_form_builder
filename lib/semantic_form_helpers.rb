@@ -73,29 +73,6 @@ module SemanticFormBuilder
       use_semantic_builder(:fields_for, name, *args, &block)
     end
     
-    # creates a ajaxy form based on a model's data using the standard builder
-    # an ajaxy form is a form which automatically hides the submit button
-    # and then shows an ajax loader when the submit button is clicked
-    #
-    # to make it work, the ajaxy form must have a special submit that is
-    # created by using the 'submit_with_ajax' helper
-    #
-    # ex:
-    #
-    # - semantic_ajaxy_form_for :user, :url => create_user_url do |s|
-    #   - s.fieldset do |f|
-    #     = f.text_field :login
-    #     = submit_with_ajax_tag "Create"
-    #
-    def semantic_ajaxy_form_for(name, *args, &block)
-      options = args.last.is_a?(Hash) ? args.pop : {}
-      element_id = options[:html][:id] if options[:html]
-      raise "Ajax form needs an identifying html id to be specified!" unless element_id
-      options = options.reverse_merge!(:before => "ajaxyFormBefore('#{element_id}')", :complete => "ajaxyFormComplete('#{element_id}')")
-      args = (args << options)
-      use_semantic_builder(:remote_form_for, name, *args, &block)
-    end
-    
     # Creates a fieldset around the content block
     #
     #  <fieldset>
