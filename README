@@ -32,7 +32,6 @@ These methods can be used within the context of a form builder or within any for
   * semantic_form_for         [ model-backed forms ]
   * semantic_remote_form_for  [ remote model-backed forms ]
   * semantic_fields_for       [ model-backed fields ]
-  * semantic_ajaxy_form_for   [ ajax model-backed forms ]
   * semantic_fieldset_tag     [ non-model-backed forms ]
 
 Example
