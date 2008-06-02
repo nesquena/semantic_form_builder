@@ -221,7 +221,7 @@ module SemanticFormBuilder
     # returns unchanged in any other case.
     #    
     def object_name(id=false)
-      return @object_name unless @object
+      return @object_name if @object.nil? or @object.new_record?
       
       replace_string = id ? "_#{@object.id}" : "[#{@object.id}]"
       @object_name.to_s.include?("[]") ? @object_name.gsub(/\[\]/, replace_string) : @object_name

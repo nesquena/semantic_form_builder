@@ -50,7 +50,8 @@ module SemanticFormBuilder
     # ex: f.select_tag(:attribute, @option_values, :label => "example")
     #
     def select_tag(name, option_values, options={})
-      label = options.delete(:label).gsub(' ', '&nbsp;')
+      label = options.delete(:label) || name.titleize
+      label.gsub!(' ', '&nbsp;')
       content_tag("dt", content_tag("label" , "#{label}:", :for => name )) +  "\n" +
       content_tag("dd", @super.select_tag(name, option_values, options))
     end
