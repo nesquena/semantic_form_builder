@@ -197,7 +197,8 @@ module SemanticFormBuilder
         raise "Semantic form fields must be contained within a fieldset!" unless @renderer
         options = args.length > 0 ? args[0] : {} # grab the options hash
         object_value = @object ? @object.send(attribute) : nil # grab the object's value
-        options.reverse_merge!(:label => attribute.to_s.titleize, :id => "#{object_name(:id)}_#{attribute}", :value => object_value, :error =>  @object.errors.on(attribute))
+        options.reverse_merge!(:label => attribute.to_s.titleize, :id => "#{object_name(:id)}_#{attribute}", :value => object_value.to_s)
+        options.reverse_merge!(:error =>  @object.errors.on(attribute)) if @object
         @renderer.send(template_method, "#{object_name}[#{attribute}]", options)
       end
     end

@@ -13,7 +13,6 @@ module SemanticFormBuilder
     #
     #    - text_field_tag
     #    - password_field_tag 
-    #    - check_box_tag
     #    - text_area_tag
     #
     # These were created dynamically in the method "self.create_field_element"
@@ -39,6 +38,21 @@ module SemanticFormBuilder
       end
     end
     
+    # creates a check box tag which allows a boolean value to be toggled
+    # this will wrap the check box tag within a definition list
+    # in order to match the sematic style
+    def check_box_tag(name, options = {})
+      html = content_tag(:dt) do
+        content_tag(:label , "#{options.delete(:label)}:", :for => options[:id])
+      end
+
+      html << content_tag(:dd) do
+        checked = options.delete(:value).to_s != 'false'
+        @super.check_box_tag(name, "1", checked, options) +
+        @super.hidden_field_tag(name, "0")
+      end
+    end
+
     # creates a select tag that is generated within a definition item
     # for use within a definition form that has definition items for each field
     #
@@ -97,7 +111,7 @@ module SemanticFormBuilder
         end
         
         html << content_tag(:dd) do
-          html_tag = @super.send(field_tag_name, name, options.delete(:value), options) 
+          html_tag = @super.send(field_tag_name, name, options.delete(:value).to_s, options)
           options.delete(:error) ? ActionView::Base.field_error_proc.call(html_tag, @object) : html_tag
         end
       end
@@ -106,7 +120,7 @@ module SemanticFormBuilder
     # for text, password, and check_boxes invoke the 'create_field_element' method to create
     # appropriate helper methods for this renderer for each listed field type
     #
-    [ 'text_field', 'password_field', 'check_box', 'text_area' ].each { |field| self.create_field_element(field) }
+    [ 'text_field', 'password_field', 'text_area' ].each { |field| self.create_field_element(field) }
     
     # given the element_name for the field and the options_hash will construct a hash
     # filled with all pertinent information for creating a field_tag with the correct details
