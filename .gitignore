@@ -1,1 +1,4 @@
-*.svn*
+log/*.log
+tmp/**/*
+.DS_Store
+.svn*
