@@ -7,7 +7,7 @@ Installation
 To install, simply add a clone of the git repository to the vendor/plugins directory
 
   $ cd /path/to/rails/app
-  $ git clone git@github.com:xgamerx/semantic_form_builder.git vendor/plugins/semantic_form_builder
+  $ git clone git://github.com/nesquena/semantic_form_builder.git vendor/plugins/semantic_form_builder
 
 Overview
 ========
