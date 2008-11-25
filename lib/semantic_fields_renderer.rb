@@ -72,14 +72,12 @@ module SemanticFormBuilder
     
     # places a submit_button in a standardized format with a definition item for a standard form.
     #
-    #   <dt class="button" />
-    #   <dd class="button"><input id="someid" type = 'submit' /></dd>
+    #   <dd class="button"><input id="someid" type ='submit' /></dd>
     #
     # ex: f.submit_tag "Caption"
     #
     def submit_tag(label, options={})
-      html = tag(:dt, :class => 'button') 
-      html << content_tag(:dd, :class => 'button') do
+      content_tag(:dd, :class => 'button') do
         @super.submit_tag(label, options)
       end
     end
