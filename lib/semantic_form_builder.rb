@@ -109,7 +109,7 @@ module SemanticFormBuilder
       html << @template.content_tag(:dd) do
         returning choices_html = String.new do
           options[:choices].each do |choice|
-            choices_html << radio_button("gender", choice.to_s) + 
+            choices_html << radio_button(attribute, choice.to_s) + 
             @template.content_tag("label" , "#{choice.to_s.titleize}", :for => "#{object_name}_#{attribute}_#{choice.to_s}" ) 
           end
         end
