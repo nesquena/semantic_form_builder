@@ -82,6 +82,19 @@ module SemanticFormBuilder
       end
     end
     
+    # places a image_submit_button in a standardized format with a definition item for a standard form.
+    #
+    #   <dd class="button"><input id="someid" type ='submit' /></dd>
+    #
+    # ex: f.image_submit_tag 'some_image.png'
+    #    
+    def image_submit_tag(image_file, options={})
+      content_tag(:dd, :class => 'button') do
+        @super.image_submit_tag(image_file, options)
+      end
+    end    
+    
+    
     # ===============================================================
     # PRIVATE HELPERS
     # ===============================================================

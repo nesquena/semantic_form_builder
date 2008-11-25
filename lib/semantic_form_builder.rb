@@ -13,7 +13,8 @@
   * text_area       (attribute:symbol, options_hash:hash)
   * check_box       (attribute:symbol, options_hash:hash)
   * radio_buttons   (attribute:symbol, options_hash:hash)
-  * submit_button   (label:string)  - create a submit button in a definition item
+  * submit_button   (label:string)   - create a submit button in a definition item
+  * image_submit_button (src:string) - create an image submit button in a definition item
 
   This form builder is rather easy to use as the example illustrates:
 
@@ -43,7 +44,6 @@
         <dt><label for="user_password_confirmation">Password Confirmation:</label></dt>
         <dd><input type="password" size="30" name="user[password_confirmation]" id="user_password_confirmation"/></dd>
   
-        <dt class="button"/>
         <dd class="button"><input type="submit" value="Sign up" name="commit"/></dd>
       </dl>
     </fieldset> 
@@ -77,16 +77,28 @@ module SemanticFormBuilder
     
     # submit element tag for form within a definition item
     #
-    #  <dt class="button"></dt>
     #  <dd class="button">
     #    <input class="button" type="submit" value="Submit"/>
     #  </dd>
     #
     # ex. 
-    #     f.submit_button "Label"
+    #     f.submit_button 'Label'
     #
     def submit_button(label, options={})
       @renderer.submit_tag(label, options)
+    end
+    
+    # image submit element tag for form within a definition item
+    #
+    #  <dd class="button">
+    #    <input class="button" type="submit" value="Submit"/>
+    #  </dd>
+    #
+    # ex. 
+    #     f.submit_button 'some_image.png'
+    #
+    def image_submit_button(image_file, options={})
+      @renderer.image_submit_tag(image_file, options)
     end
     
     # options => :choices [Array]
