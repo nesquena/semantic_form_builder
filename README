@@ -12,9 +12,9 @@ To install, simply add a clone of the git repository to the vendor/plugins direc
 Overview
 ========
 
-This class is a standardized form builder which works to create semantically correct forms, 
-each field with the appropriate label and wrapped within a definition list item in order to 
-represent a list of items using proper xhtml markup.
+This plugin is a standardized form builder which works to create semantically correct forms, each field with the 
+appropriate label and wrapped within a definition list item in order to represent a list of items using proper xhtml markup. 
+Works with Rails 1.X as well as 2.X, including 2.2.2
 
   The tags allowed are as follows:
 
