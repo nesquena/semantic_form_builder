@@ -147,12 +147,22 @@ module SemanticFormBuilder
       result_options = (options || {}).dup
       result_options.reverse_merge!(:value => nil, :class => '', :id => element_name)
       result_options[:label]  ||= element_name.to_s.titleize
-      result_options[:class]  << " #{input_type}"
+      result_options[:class]  << " #{input_type_to_class(input_type)}"
       result_options
     end
     
     def method_missing(*args, &block)
       @super.send(*args, &block)
+    end
+    
+    private
+
+    # returns the class name based on input type
+    def input_type_to_class(input_type)
+      class_mappings = { :text_field => 'text', :radio_button => 'radio', :password_field => 'text', 
+        :submit => 'submit', :image_submit => 'submit', :hidden_field => 'hidden', 
+        :file_field => 'file', :check_box => 'checkbox'  }
+      class_mappings[input_type.to_sym] || input_type
     end
   end
 end
