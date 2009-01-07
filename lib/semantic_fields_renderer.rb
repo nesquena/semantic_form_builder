@@ -92,7 +92,7 @@ module SemanticFormBuilder
       content_tag(:dd, :class => 'button') do
         @super.image_submit_tag(image_file, options)
       end
-    end    
+    end
     
     
     # ===============================================================
@@ -115,7 +115,7 @@ module SemanticFormBuilder
       
       define_method(field_tag_name) do |name, *args| # defines a method called 'semantic_text_field_tag' 
         field_helper_method = method(field_tag_name.intern)
-        options = field_tag_item_options(name, args[0]) # grab the options hash
+        options = field_tag_item_options(name, input_type, args[0]) # grab the options hash
         
         html = content_tag(:dt) do
           content_tag(:label , "#{options.delete(:label)}:", :for => options[:id])
@@ -143,11 +143,12 @@ module SemanticFormBuilder
     #
     # returns => { :value => 'field_value', :label => "some string", :id => 'some_id', ... }
     # 
-    def field_tag_item_options(element_name, options)
-      result_options = (options || {}).dup
+    def field_tag_item_options(element_name, input_type, options)
+      result_options = (options || { :class => "" }).dup
       result_options[:id] ||= element_name
       result_options[:label]  ||= element_name.to_s.titleize
       result_options[:value]  ||= nil
+      result_options[:class]  << " #{input_type}"
       result_options
     end
     
