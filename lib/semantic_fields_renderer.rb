@@ -144,10 +144,9 @@ module SemanticFormBuilder
     # returns => { :value => 'field_value', :label => "some string", :id => 'some_id', ... }
     # 
     def field_tag_item_options(element_name, input_type, options)
-      result_options = (options || { :class => "" }).dup
-      result_options[:id] ||= element_name
+      result_options = (options || {}).dup
+      result_options.reverse_merge!(:value => nil, :class => '', :id => element_name)
       result_options[:label]  ||= element_name.to_s.titleize
-      result_options[:value]  ||= nil
       result_options[:class]  << " #{input_type}"
       result_options
     end
