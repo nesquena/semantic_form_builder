@@ -104,7 +104,7 @@ module SemanticFormBuilder
     # options => :choices [Array]
     # constructs a group of radio buttons based on the choices given within a definition item
     #
-    # <dt>Gender:</dt>
+    # <dt><span>Gender:</span></dt>
     # <dd>
     #  <input id="user_gender_male" type="radio" value="male" name="user[gender]" checked="checked"/>
     #  <label for="user_gender_male">Male</label>
@@ -117,7 +117,7 @@ module SemanticFormBuilder
     #
     def radio_buttons(attribute, options)
       caption =  (options.delete(:label) || attribute.to_s.titleize).gsub(' ', '&nbsp;') + ":"
-      html = @template.content_tag(:dt, caption)
+      html = @template.content_tag(:dt, content_span(:span, caption))
       html << @template.content_tag(:dd) do
         returning choices_html = String.new do
           options[:choices].each do |choice|
