@@ -117,7 +117,7 @@ module SemanticFormBuilder
     #
     def radio_buttons(attribute, options)
       caption =  (options.delete(:label) || attribute.to_s.titleize).gsub(' ', '&nbsp;') + ":"
-      html = @template.content_tag(:dt, content_span(:span, caption))
+      html = @template.content_tag(:dt, content_tag(:span, caption))
       html << @template.content_tag(:dd) do
         returning choices_html = String.new do
           options[:choices].each do |choice|
