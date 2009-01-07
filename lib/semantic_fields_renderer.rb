@@ -33,6 +33,7 @@ module SemanticFormBuilder
         content_tag(:label , "#{options.delete(:label)}:", :for => options[:id])
       end
       
+      options[:class] = append_class_name(options[:class], 'file')
       html << content_tag(:dd) do
         @super.file_field_tag(name, options)
       end
@@ -46,6 +47,7 @@ module SemanticFormBuilder
         content_tag(:label , "#{options.delete(:label)}:", :for => options[:id])
       end
 
+      options[:class] = append_class_name(options[:class], 'checkbox')
       html << content_tag(:dd) do
         checked = options.delete(:value).to_s != 'false'
         @super.check_box_tag(name, "1", checked, options) +
@@ -77,6 +79,7 @@ module SemanticFormBuilder
     # ex: f.submit_tag "Caption"
     #
     def submit_tag(label, options={})
+      options[:class] = append_class_name(options[:class], 'submit')
       content_tag(:dd, :class => 'button') do
         @super.submit_tag(label, options)
       end
@@ -89,6 +92,7 @@ module SemanticFormBuilder
     # ex: f.image_submit_tag 'some_image.png'
     #    
     def image_submit_tag(image_file, options={})
+      options[:class] = append_class_name(options[:class], 'submit')
       content_tag(:dd, :class => 'button') do
         @super.image_submit_tag(image_file, options)
       end
@@ -145,9 +149,9 @@ module SemanticFormBuilder
     # 
     def field_tag_item_options(element_name, input_type, options)
       result_options = (options || {}).dup
-      result_options.reverse_merge!(:value => nil, :class => '', :id => element_name)
+      result_options.reverse_merge!(:value => nil, :id => element_name)
       result_options[:label]  ||= element_name.to_s.titleize
-      result_options[:class]  << " #{input_type_to_class(input_type)}"
+      result_options[:class]  = append_class_name(options[:class], input_type_to_class(input_type))
       result_options
     end
     
@@ -159,10 +163,13 @@ module SemanticFormBuilder
 
     # returns the class name based on input type
     def input_type_to_class(input_type)
-      class_mappings = { :text_field => 'text', :radio_button => 'radio', :password_field => 'text', 
-        :submit => 'submit', :image_submit => 'submit', :hidden_field => 'hidden', 
-        :file_field => 'file', :check_box => 'checkbox'  }
-      class_mappings[input_type.to_sym] || input_type
+      class_mappings = { :text_field => 'text', :password_field => 'text' }
+      class_mappings[input_type.to_sym] || nil
+    end
+    
+    # returns the result of appending the old classname to the new
+    def append_class_name(original_value, new_value)
+      (original_value || "") << " #{new_name}"
     end
   end
 end
