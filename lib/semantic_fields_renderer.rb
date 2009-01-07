@@ -169,7 +169,7 @@ module SemanticFormBuilder
     
     # returns the result of appending the old classname to the new
     def append_class_name(original_value, new_value)
-      (original_value || "") << " #{new_name}"
+      (original_value || "") << " #{new_value}"
     end
   end
 end
