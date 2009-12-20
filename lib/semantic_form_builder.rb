@@ -73,7 +73,42 @@ module SemanticFormBuilder
     def fieldset(name=nil, options = {}, &block)
       @renderer = FieldsRenderer.new(@template) # stores the renderer for later use
       @template.semantic_fieldset_tag(name, options, &block)
-    end 
+    end
+
+    def semantic_fields_for(record_or_name_or_array, *args, &block)
+      if options.has_key?(:index)
+        index = "[#{options[:index]}]"
+      elsif defined?(@auto_index)
+        self.object_name = @object_name.to_s.sub(/\[\]$/,"")
+        index = "[#{@auto_index}]"
+      else
+        index = ""
+      end
+
+      if options[:builder]
+        args << {} unless args.last.is_a?(Hash)
+        args.last[:builder] ||= options[:builder]
+      end
+
+      case record_or_name_or_array
+      when String, Symbol
+        if nested_attributes_association?(record_or_name_or_array)
+          return fields_for_with_nested_attributes(record_or_name_or_array, args, block)
+        else
+          name = "#{object_name}#{index}[#{record_or_name_or_array}]"
+        end
+      when Array
+        object = record_or_name_or_array.last
+        name = "#{object_name}#{index}[#{ActionController::RecordIdentifier.singular_class_name(object)}]"
+        args.unshift(object)
+      else
+        object = record_or_name_or_array
+        name = "#{object_name}#{index}[#{ActionController::RecordIdentifier.singular_class_name(object)}]"
+        args.unshift(object)
+      end
+
+      @template.semantic_fields_for(name, *args, &block)
+    end
     
     # submit element tag for form within a definition item
     #
