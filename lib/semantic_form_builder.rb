@@ -41,7 +41,7 @@
         <dt><label for="user_password">Password:</label></dt>
         <dd><input type="password" size="30" name="user[password]" id="user_password"/></dd>
   
-        <dt><label for="user_password_confirmation">Password Confirmation:</label></dt>
+        <dt><label for="user_password_confirmation">Password Confirmation:</label></dt>
         <dd><input type="password" size="30" name="user[password_confirmation]" id="user_password_confirmation"/></dd>
   
         <dd class="button"><input type="submit" value="Sign up" name="commit"/></dd>
