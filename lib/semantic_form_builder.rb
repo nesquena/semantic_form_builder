@@ -227,7 +227,6 @@ module SemanticFormBuilder
     alias_method :original_select, :select
     def select(attribute, choices, options = {})
       label = (options.delete(:label) || attribute.to_s.humanize).gsub(' ', '&nbsp;')
-      options.reverse_merge!(:error =>  @object.errors.on(attribute)) if @object
       html = @template.content_tag("dt", @template.content_tag("label" , "#{label}:", :for => "#{object_name(:id)}_#{attribute}" ))
       html << @template.content_tag("dd", original_select(attribute, choices, options))
     end
