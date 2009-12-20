@@ -70,9 +70,9 @@ module SemanticFormBuilder
     #      ...input_fields...
     #    end
     #
-    def fieldset(name=nil, &block)
+    def fieldset(name=nil, options = {}, &block)
       @renderer = FieldsRenderer.new(@template) # stores the renderer for later use
-      @template.semantic_fieldset_tag(name, &block)
+      @template.semantic_fieldset_tag(name, options, &block)
     end 
     
     # submit element tag for form within a definition item
