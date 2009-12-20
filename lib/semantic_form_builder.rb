@@ -109,7 +109,7 @@ module SemanticFormBuilder
 
       @template.semantic_fields_for(name, *args, &block)
     end
-    
+
     # submit element tag for form within a definition item
     #
     #  <dd class="button">
@@ -222,6 +222,15 @@ module SemanticFormBuilder
         @template.select_year(year_value,   :field_name => options[:year], :prefix => object_name.to_s, :start_year => end_year, :end_year => options[:start_year], :include_blank => options[:include_blank])
       end
     end
+
+    # constructs regular html selector
+    alias_method :original_select, :select
+    def select(attribute, choices, options = {})
+      label = (options.delete(:label) || attribute.to_s.humanize).gsub(' ', '&nbsp;')
+      options.reverse_merge!(:error =>  @object.errors.on(attribute)) if @object
+      html = @template.content_tag("dt", @template.content_tag("label" , "#{label}:", :for => "#{object_name(:id)}_#{attribute}" ))
+      html << @template.content_tag("dd", original_select(attribute, choices, options))
+    end
     
     private 
     
@@ -239,6 +248,7 @@ module SemanticFormBuilder
     #
     def self.create_field_element(input_type_name)
       method_name = input_type_name #i.e method will be defined as 'text_field'
+      alias_method "original_#{input_type_name}", input_type_name
       template_method = "#{input_type_name}_tag" #i.e text_field_tag
       define_method(method_name) do |attribute, *args| # defines a method called 'text_field' 
         raise "Semantic form fields must be contained within a fieldset!" unless @renderer
@@ -256,7 +266,7 @@ module SemanticFormBuilder
     [ 'text_field', 'password_field', 'file_field', 'text_area', 'check_box' ].each do |type_name|
       self.create_field_element(type_name)
     end
-    
+
     # Correctly parses the empty array brackets that can be passed into a form and inserts the id
     #
     # ex: 
