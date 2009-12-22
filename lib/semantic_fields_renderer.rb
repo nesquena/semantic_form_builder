@@ -50,8 +50,8 @@ module SemanticFormBuilder
       options[:class] = append_class_name(options[:class], 'checkbox')
       html << content_tag(:dd) do
         checked = options.delete(:value).to_s != 'false'
-        @super.check_box_tag(name, "1", checked, options) +
-        @super.hidden_field_tag(name, "0")
+        @super.hidden_field_tag(name, "0") + 
+        @super.check_box_tag(name, "1", checked, options)
       end
     end
 
@@ -120,6 +120,8 @@ module SemanticFormBuilder
       define_method(field_tag_name) do |name, *args| # defines a method called 'semantic_text_field_tag' 
         field_helper_method = method(field_tag_name.intern)
         options = field_tag_item_options(name, input_type, args[0]) # grab the options hash
+
+        errors = options[:error]
         
         html = content_tag(:dt) do
           content_tag(:label , "#{options.delete(:label)}:", :for => options[:id])
@@ -127,8 +129,18 @@ module SemanticFormBuilder
         
         html << content_tag(:dd) do
           html_tag = @super.send(field_tag_name, name, options.delete(:value).to_s, options)
-          options.delete(:error) ? ActionView::Base.field_error_proc.call(html_tag, @object) : html_tag
+          errors ? ActionView::Base.field_error_proc.call(html_tag, @object) : html_tag
         end
+
+        if errors
+          error_message = errors.is_a?(Array) ? errors.join(' and ') : errors
+          html << content_tag(:dt)
+          html << content_tag(:dd) do
+            content_tag(:p, error_message, :class => 'inline-errors')
+          end
+        end
+        
+        html
       end
     end
     

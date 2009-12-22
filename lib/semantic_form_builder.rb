@@ -73,8 +73,43 @@ module SemanticFormBuilder
     def fieldset(name=nil, options = {}, &block)
       @renderer = FieldsRenderer.new(@template) # stores the renderer for later use
       @template.semantic_fieldset_tag(name, options, &block)
-    end 
-    
+    end
+
+    def semantic_fields_for(record_or_name_or_array, *args, &block)
+      if options.has_key?(:index)
+        index = "[#{options[:index]}]"
+      elsif defined?(@auto_index)
+        self.object_name = @object_name.to_s.sub(/\[\]$/,"")
+        index = "[#{@auto_index}]"
+      else
+        index = ""
+      end
+
+      if options[:builder]
+        args << {} unless args.last.is_a?(Hash)
+        args.last[:builder] ||= options[:builder]
+      end
+
+      case record_or_name_or_array
+      when String, Symbol
+        if nested_attributes_association?(record_or_name_or_array)
+          return fields_for_with_nested_attributes(record_or_name_or_array, args, block)
+        else
+          name = "#{object_name}#{index}[#{record_or_name_or_array}]"
+        end
+      when Array
+        object = record_or_name_or_array.last
+        name = "#{object_name}#{index}[#{ActionController::RecordIdentifier.singular_class_name(object)}]"
+        args.unshift(object)
+      else
+        object = record_or_name_or_array
+        name = "#{object_name}#{index}[#{ActionController::RecordIdentifier.singular_class_name(object)}]"
+        args.unshift(object)
+      end
+
+      @template.semantic_fields_for(name, *args, &block)
+    end
+
     # submit element tag for form within a definition item
     #
     #  <dd class="button">
@@ -187,6 +222,14 @@ module SemanticFormBuilder
         @template.select_year(year_value,   :field_name => options[:year], :prefix => object_name.to_s, :start_year => end_year, :end_year => options[:start_year], :include_blank => options[:include_blank])
       end
     end
+
+    # constructs regular html selector
+    alias_method :original_select, :select
+    def select(attribute, choices, options = {})
+      label = (options.delete(:label) || attribute.to_s.humanize).gsub(' ', '&nbsp;')
+      html = @template.content_tag("dt", @template.content_tag("label" , "#{label}:", :for => "#{object_name(:id)}_#{attribute}" ))
+      html << @template.content_tag("dd", original_select(attribute, choices, options))
+    end
     
     private 
     
@@ -204,6 +247,7 @@ module SemanticFormBuilder
     #
     def self.create_field_element(input_type_name)
       method_name = input_type_name #i.e method will be defined as 'text_field'
+      alias_method "original_#{input_type_name}", input_type_name
       template_method = "#{input_type_name}_tag" #i.e text_field_tag
       define_method(method_name) do |attribute, *args| # defines a method called 'text_field' 
         raise "Semantic form fields must be contained within a fieldset!" unless @renderer
@@ -221,7 +265,7 @@ module SemanticFormBuilder
     [ 'text_field', 'password_field', 'file_field', 'text_area', 'check_box' ].each do |type_name|
       self.create_field_element(type_name)
     end
-    
+
     # Correctly parses the empty array brackets that can be passed into a form and inserts the id
     #
     # ex: 
