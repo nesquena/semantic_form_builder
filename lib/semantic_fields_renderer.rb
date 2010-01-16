@@ -50,7 +50,7 @@ module SemanticFormBuilder
       options[:class] = append_class_name(options[:class], 'checkbox')
       html << content_tag(:dd) do
         checked = options.delete(:value).to_s != 'false'
-        @super.hidden_field_tag(name, "0") + 
+        @super.hidden_field_tag(name, "0", :id => "#{options[:id]}_hidden") +
         @super.check_box_tag(name, "1", checked, options)
       end
     end
