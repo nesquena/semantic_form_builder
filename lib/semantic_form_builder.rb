@@ -162,6 +162,20 @@ module SemanticFormBuilder
         end
       end
     end
+
+    # creates a select control that is generated within a definition item
+    # for use within a definition form that has definition items for each field
+    #
+    #   <dt><label for="user[group]">Group</label></dt>
+    #   <dd><select id="user_group" name="user[group]">...</select></dd>
+    #
+    # ex: f.select(:group, @option_values)
+    #
+    def select(attribute, choices, options = {})
+      object_value = @object ? @object.send(attribute) : nil # grab the object's value
+      options.reverse_merge!(:label => attribute.to_s.titleize, :id => "#{object_name(:id)}_#{attribute}")
+      @renderer.select_tag("#{object_name}[#{attribute}]", @template.options_for_select(choices, object_value), options)
+    end
     
     # creates a calendar date select object using the "calendar_date_select" plugin
     # this was added in order to wrap the control with the proper definition item
