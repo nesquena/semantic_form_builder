@@ -149,6 +149,8 @@ module SemanticFormBuilder
     #
     # ex: 
     #     f.radio_buttons :gender, :choices => [ :male, :female ]
+    # also you can provide array of arrays to use different option value and caption
+    #     f.radio_buttons :gender, :choices => [ ['Male', 1], ['Female', 2] ]
     #
     def radio_buttons(attribute, options)
       caption =  (options.delete(:label) || attribute.to_s.titleize).gsub(' ', '&nbsp;') + ":"
@@ -156,8 +158,9 @@ module SemanticFormBuilder
       html << @template.content_tag(:dd) do
         returning choices_html = String.new do
           options[:choices].each do |choice|
-            choices_html << radio_button(attribute, choice.to_s, :class => 'radio') + 
-            @template.content_tag("label" , "#{choice.to_s.titleize}", :for => "#{object_name}_#{attribute}_#{choice.to_s}" ) 
+            label, value = choice.is_a?(Array) ? [choice.first, choice.last.to_s] : [choice.to_s.titleize, choice.to_s]
+            choices_html << radio_button(attribute, value, :class => 'radio') + 
+            @template.content_tag("label" , label, :for => "#{object_name}_#{attribute}_#{value}" ) 
           end
         end
       end
