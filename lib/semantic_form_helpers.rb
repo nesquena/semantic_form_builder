@@ -89,12 +89,12 @@ module SemanticFormBuilder
     #   end
     #
     def semantic_fieldset_tag(name=nil, options={}, &block)
-      concat(tag(:fieldset, options, true), block.binding)
-      concat(content_tag(:legend, name), block.binding) if name
-      concat(tag(:dl, { :class => 'semantic-form' }, true), block.binding)
+      concat(tag(:fieldset, options, true))
+      concat(content_tag(:legend, name)) if name
+      concat(tag(:dl, { :class => 'semantic-form' }, true))
       yield FieldsRenderer.new(self) # yield the field renderer
-      concat("</dl>", block.binding)
-      concat("</fieldset>", block.binding)
+      concat("</dl>")
+      concat("</fieldset>")
     end  
     
     
